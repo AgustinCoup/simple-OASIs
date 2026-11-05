@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.vscode/
+.idea/
+
+# Artefactos temporales de la verificación de mutantes
+docs/casos/verificacion/mut/
