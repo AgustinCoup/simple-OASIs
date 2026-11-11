@@ -1,0 +1,38 @@
+﻿# Modelo: nvidia/nemotron-3.5-super-vl:free
+Aserción: Postcondicion de Board.getScore(): result == this.score && result >= 0
+
+== Posible aserción demasiado FUERTE (tests que la violan) ==
+No encontré tests ejecutables con entradas válidas que hagan fallar la aserción.
+
+Justificación: `getScore()` solo retorna el campo `score`. Este se inicializa a 0 en todos los constructores y únicamente se incrementa en `move()` mediante `score += mergedCell.getValue()`, donde los valores de celda son válidos (no negativos) según los invariantes del programa. No existe un setter público ni otro camino público para que `score` sea negativo o para que el valor retornado difiera de `this.score`. Por tanto, en toda ejecución normal se cumple `result == this.score && result >= 0`.
+
+== Posible aserción demasiado DÉBIL (mutantes que no mata) ==
+Mutante 1
+- Cambio en `getScore()`:
+  ```java
+  public int getScore() {
+      return ++this.score;
+  }
+  ```
+- Entrada testigo: `Board b = new Board(); int r = b.getScore();` (score inicial 0, invariantes válidos).
+- Resultados: original devuelve 0; mutante devuelve 1 y deja `b.score == 1`.
+- Por qué la aserción no lo mata: en el mutante `result == this.score` (1 == 1) y `result >= 0`, por lo tanto la postcondición se cumple aunque el valor devuelto difiere del original y el método tiene un efecto colateral no deseado.
+
+Mutante 2
+- Cambio en `getScore()`:
+  ```java
+  public int getScore() {
+      return this.score += 1;
+  }
+  ```
+- Entrada testigo: `Board b = new Board(); int r = b.getScore();`.
+- Resultados: original devuelve 0; mutante devuelve 1 y deja `b.score == 1`.
+- Por qué la aserción no lo mata: tras la llamada, `result == this.score` (1 == 1) y `result >= 0`, así que la aserción se satisface en ambos aunque el resultado y el estado posterior son distintos.
+
+Aserción más fuerte sugerida:
+```
+result == \pre(this.score) && result >= 0
+```
+o equivalentemente exigir que el getter no modifique el estado: `result == this.score && result >= 0 && score == \pre(score)`.
+
+Nota: el LLM razona sobre el código sin ejecutarlo; verificá estos resultados antes de decidir. La decisión de refinar la aserción es tuya.

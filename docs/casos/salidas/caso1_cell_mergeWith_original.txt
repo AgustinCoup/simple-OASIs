@@ -1,0 +1,81 @@
+﻿# Modelo: nvidia/nemotron-3.5-super-vl:free
+Aserción: Postcondicion de Cell.mergeWith(Cell other), contrato inferido por Daikon: result != null && this.value == other.value && (this.value == 1 || this.value == 2 || this.value == 4) && (result.value == 2 || result.value == 4 || result.value == 8) && this.value < result.value && result.value % this.value == 0
+
+== Posible aserción demasiado FUERTE (tests que la violan) ==
+**Test 1**
+
+```java
+package ar.edu.unrc.game2048;
+
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+
+public class CellMergeWithPostconditionTest {
+
+    @Test
+    public void mergeWith_8_y_8_devuelve_16_y_viola_postcondicion() {
+        Cell origen = new Cell(8);
+        Cell otro = new Cell(8);
+        Cell resultado = origen.mergeWith(otro);
+
+        boolean post = resultado != null
+            && origen.getValue() == otro.getValue()
+            && (origen.getValue() == 1 || origen.getValue() == 2 || origen.getValue() == 4)
+            && (resultado.getValue() == 2 || resultado.getValue() == 4 || resultado.getValue() == 8)
+            && origen.getValue() < resultado.getValue()
+            && resultado.getValue() % origen.getValue() == 0;
+
+        assertTrue("La postcondición inferida no debe rechazarse para 8 + 8", post);
+    }
+
+    @Test
+    public void mergeWith_16_y_16_devuelve_32_y_viola_postcondicion() {
+        Cell origen = new Cell(16);
+        Cell otro = new Cell(16);
+        Cell resultado = origen.mergeWith(otro);
+
+        boolean post = resultado != null
+            && origen.getValue() == otro.getValue()
+            && (origen.getValue() == 1 || origen.getValue() == 2 || origen.getValue() == 4)
+            && (resultado.getValue() == 2 || resultado.getValue() == 4 || resultado.getValue() == 8)
+            && origen.getValue() < resultado.getValue()
+            && resultado.getValue() % origen.getValue() == 0;
+
+        assertTrue("La postcondición inferida no debe rechazarse para 16 + 16", post);
+    }
+}
+```
+
+**Resultado del programa**
+- Test 1: `new Cell(8)` es válido; `mergeWith` comprueba `canMergeWith` (true) y retorna `new Cell(16)`. `resultado.getValue()` es 16.
+- Test 2: `new Cell(16)` es válido; `mergeWith` retorna `new Cell(32)`. `resultado.getValue()` es 32.
+
+**Por qué viola la aserción**
+En ambos casos la conjunción es falsa porque el valor de entrada (8 o 16) no pertenece a {1, 2, 4} y el valor de salida (16 o 32) no pertenece a {2, 4, 8}. Por tanto `assertTrue` falla aunque el método retorne normalmente.
+
+**Clasificación**
+No es un bug del programa: `mergeWith` respeta el invariante (devuelve una potencia de dos, el doble del valor de entrada). La aserción es demasiado fuerte porque restringe indebidamente los valores permitidos a un conjunto finito pequeño.
+
+**Aserción más débil sugerida**
+```
+resultado != null && origen.getValue() == otro.getValue()
+&& origen.getValue() > 0 && resultado.getValue() == 2 * origen.getValue()
+```
+
+== Posible aserción demasiado DÉBIL (mutantes que no mata) ==
+Mutante 1
+- Cambio: en `mergeWith`, `return new Cell(this.value * 2);` → `return new Cell(this.value * 4);`
+- Entrada testigo: `new Cell(2).mergeWith(new Cell(2))`
+- Diferencia: original devuelve `Cell(4)`, mutante devuelve `Cell(8)`.
+- Por qué la aserción no lo mata: en el mutante `this.value = 2` (pertenece a {1,2,4}), `result.value = 8` (pertenece a {2,4,8}), `2 < 8` y `8 % 2 == 0`; la postcondición sigue siendo verdadera.
+
+Mutante 2
+- Cambio: en `mergeWith`, `return new Cell(this.value * 2);` → `return new Cell(this.value == 1 ? 4 : this.value * 2);`
+- Entrada testigo: `new Cell(1).mergeWith(new Cell(1))` (válido: el constructor acepta 1 porque `1 & 0 == 0` y `repOK()` lo acepta).
+- Diferencia: original devuelve `Cell(2)`, mutante devuelve `Cell(4)`.
+- Por qué la aserción no lo mata: en el mutante `this.value = 1`, `result.value = 4` (pertenece a {2,4,8}), `1 < 4` y `4 % 1 == 0`; la postcondición sigue siendo verdadera.
+
+Aserción más fuerte sugerida:
+`result != null && this.value == other.value && this.value > 0 && result.value == this.value * 2`
+
+Nota: el LLM razona sobre el código sin ejecutarlo; verificá estos resultados antes de decidir. La decisión de refinar la aserción es tuya.

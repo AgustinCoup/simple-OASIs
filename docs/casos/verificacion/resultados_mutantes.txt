@@ -1,0 +1,945 @@
+### ORIGINAL
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C1-M1 (*4)
+C1 merge(1,1) | result=4 A1=true R1=false
+C1 merge(2,2) | result=8 A1=true R1=false
+C1 merge(4,4) | result=16 A1=false R1=false
+C1 merge(8,8) | result=32 A1=false R1=false
+C1 merge(16,16) | result=64 A1=false R1=false
+C1 merge(32,32) | result=128 A1=false R1=false
+C2 moveUp sobre 2/2 en columna | getScore=8 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=4096 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | result=0 R1=false
+C2b moveLeft sobre 2,2 | getScore=8
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=8 resultado=8 score_despues=8 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C1-M2 (v==1?4)
+C1 merge(1,1) | result=4 A1=true R1=false
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C1-M3 (v==1?8)
+C1 merge(1,1) | result=8 A1=true R1=false
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C2-M1 (move: suma operando)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=2 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=1024 A2=true R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=2
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=2 resultado=2 score_despues=2 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C2-M2 (move: suma 0)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=0 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=0 A2=true R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=0
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C2-M3 (addRandomTile suma)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=6 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2050 A2=false R2=true
+C2 new Board() | getScore=4 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=6
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 6 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 4 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=6 resultado=6 score_despues=6 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C2-G1 (getScore: return 0)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=0 A2=false R2=false
+C2 moveLeft sobre 1024,1024 | getScore=0 A2=false R2=false
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=0
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=0 score_despues=4 R2=false R2pura=false
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C2-G2 (getScore: score+1)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=5 A2=false R2=false
+C2 moveLeft sobre 1024,1024 | getScore=2049 A2=false R2=false
+C2 new Board() | getScore=1 A2=false R2=false
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=5
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=5 score_despues=4 R2=false R2pura=false
+C2c getScore en new Board() | score_antes=0 resultado=1 score_despues=0 R2=false R2pura=false
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C3-M1 (!isEmpty)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[(0,0)] A3=true R3=false
+C3 Board(2,"0,2;0,0") | vacias=[(0,1)] A3=true R3=false
+C3 Board(2,"0,0;0,0") | vacias=[] A3=true R3=false
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,0), (1,1), (3,3)] A3=true R3=false
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[]
+C3b Board(2,"2,0;0,0") | vacias=[(0,0)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=1
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |     |     | / +-----+-----+ / |     |     | / +-----+-----+ vacias=[]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |     |     | / +-----+-----+ / |     |     | / +-----+-----+ vacias=[]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,0)] clase=HashSet modificable R3=false
+C3c Board(2,"2,0;2,2") | vacias=[(0,0), (1,0), (1,1)] clase=HashSet modificable R3=false
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(0,0), (0,1), (0,2), (0,3), (1,0), (1,1), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] clase=HashSet modificable R3=false
+C3c Board(2,"0,2;4,0") | vacias=[(0,1), (1,0)] clase=HashSet modificable R3=false
+C3c orden de iteracion, tablero vacio 2x2 | []
+C3c orden de iteracion, tablero vacio 3x3 | []
+C3c orden de iteracion, tablero vacio 4x4 | []
+C3c orden de iteracion, tablero vacio 5x5 | []
+C3c orden de iteracion, tablero vacio 6x6 | []
+
+### C3-M2 (Position(c,r))
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (0,1), (1,1)] A3=true R3=false
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |     |     | / +-----+-----+ / |    2|     | / +-----+-----+ vacias=[(0,0), (1,0), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(1,0)] clase=HashSet modificable R3=false
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C3-M3 (size-1)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0)] A3=true R3=false
+C3 Board(2,"0,0;0,0") | vacias=[(0,0)] A3=true R3=false
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (1,0), (1,2), (2,0), (2,1), (2,2)] A3=true R3=false
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[]
+C3b Board(2,"2,0;0,0") | vacias=[]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=0
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    4|     | / +-----+-----+ / |     |     | / +-----+-----+ vacias=[]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |     | / +-----+-----+ vacias=[]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[] clase=HashSet modificable R3=false
+C3c Board(2,"2,0;2,2") | vacias=[] clase=HashSet modificable R3=false
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[] clase=HashSet modificable R3=false
+C3c Board(2,"0,2;4,0") | vacias=[(0,0)] clase=HashSet modificable R3=false
+C3c orden de iteracion, tablero vacio 2x2 | [(0, 0)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 5x5 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C1-X1 (sin guarda canMergeWith)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | result=4 R1=false
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C1-X2 (value << 1)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C1-X3 (value + other.value)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C2R-M1 (score = 10 inicial)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C2R-M2 (move sin sumar)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=0 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=0 A2=true R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=0
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C3R-M1 (2/4 invertido)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    4|     | / +-----+-----+ / |    2|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    4|     | / +-----+-----+ / |     |    4| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C3R-M2 (moved invertido)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=false cantidad_vacias=3
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C3R-M3 (primer elemento del iterador)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    2|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C2V2-G3 (return this.score = 0)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=0 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=0 A2=true R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=0
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=0 score_despues=0 R2=true R2pura=false
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C2V2-G4 (this.score = 0; return this.score)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=0 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=0 A2=true R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=0
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=0 score_despues=0 R2=true R2pura=false
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C2V2-G5 (return ++this.score)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=5 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2049 A2=false R2=true
+C2 new Board() | getScore=1 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=5
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=5 score_despues=5 R2=true R2pura=false
+C2c getScore en new Board() | score_antes=0 resultado=1 score_despues=1 R2=true R2pura=false
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C2V2-G6 (return this.score += 1)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=5 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2049 A2=false R2=true
+C2 new Board() | getScore=1 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=5
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=5 score_despues=5 R2=true R2pura=false
+C2c getScore en new Board() | score_antes=0 resultado=1 score_despues=1 R2=true R2pura=false
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C3V2-M1 (LinkedHashSet)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=false R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=false R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=false R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=false R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    4|    2| / +-----+-----+ / |     |     | / +-----+-----+ vacias=[(1,0), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |     |    2| / +-----+-----+ / |    2|     | / +-----+-----+ vacias=[(0,0), (1,1)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=LinkedHashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=LinkedHashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=LinkedHashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=LinkedHashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(0, 0), (0, 1), (1, 0), (1, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)]
+C3c orden de iteracion, tablero vacio 4x4 | [(0, 0), (0, 1), (0, 2), (0, 3), (1, 0), (1, 1), (1, 2), (1, 3), (2, 0), (2, 1), (2, 2), (2, 3), (3, 0), (3, 1), (3, 2), (3, 3)]
+C3c orden de iteracion, tablero vacio 5x5 | [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (3, 0), (3, 1), (3, 2), (3, 3), (3, 4), (4, 0), (4, 1), (4, 2), (4, 3), (4, 4)]
+C3c orden de iteracion, tablero vacio 6x6 | [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (3, 0), (3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (4, 0), (4, 1), (4, 2), (4, 3), (4, 4), (4, 5), (5, 0), (5, 1), (5, 2), (5, 3), (5, 4), (5, 5)]
+
+### C3V2-M2 (unmodifiableSet)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=false R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=false R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=false R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=false R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |    4|     | / +-----+-----+ vacias=[(0,1), (1,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=UnmodifiableSet NO modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=UnmodifiableSet NO modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=UnmodifiableSet NO modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=UnmodifiableSet NO modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (0, 0), (1, 1), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(1, 0), (2, 1), (0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(1, 0), (2, 1), (3, 2), (0, 0), (1, 1), (2, 2), (3, 3), (0, 1), (1, 2), (2, 3), (0, 2), (1, 3), (0, 3), (3, 0), (2, 0), (3, 1)]
+C3c orden de iteracion, tablero vacio 5x5 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (0, 2), (2, 4), (0, 3), (0, 4), (3, 0), (3, 1), (1, 0), (3, 2), (1, 1), (3, 3), (1, 2), (3, 4), (1, 3), (1, 4), (4, 0), (4, 1), (2, 0), (4, 2)]
+C3c orden de iteracion, tablero vacio 6x6 | [(2, 1), (4, 3), (0, 0), (2, 2), (4, 4), (0, 1), (2, 3), (4, 5), (0, 2), (2, 4), (0, 3), (2, 5), (0, 4), (0, 5), (5, 0), (5, 1), (3, 0), (5, 2), (3, 1), (5, 3), (1, 0), (3, 2), (5, 4), (1, 1), (3, 3), (5, 5), (1, 2), (3, 4), (1, 3), (3, 5), (1, 4), (1, 5), (4, 0), (4, 1), (2, 0), (4, 2)]
+
+### C3V2-M3 (bucles inversos)
+C1 merge(1,1) | result=2 A1=true R1=true
+C1 merge(2,2) | result=4 A1=true R1=true
+C1 merge(4,4) | result=8 A1=true R1=true
+C1 merge(8,8) | result=16 A1=false R1=true
+C1 merge(16,16) | result=32 A1=false R1=true
+C1 merge(32,32) | result=64 A1=false R1=true
+C2 moveUp sobre 2/2 en columna | getScore=4 A2=true R2=true
+C2 moveLeft sobre 1024,1024 | getScore=2048 A2=false R2=true
+C2 new Board() | getScore=0 A2=true R2=true
+C3 Board(1,"5") | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: 5
+C3 Board(1,"2") | vacias=[] A3=true R3=true
+C3 Board(2,"0,2;0,0") | vacias=[(0,0), (1,0), (1,1)] A3=true R3=true
+C3 Board(2,"0,0;0,0") | vacias=[(0,0), (0,1), (1,0), (1,1)] A3=true R3=true
+C3 Board(4,"2,0,0,0;0,4,0,0;0,0,0,0;0,0,0,8") | vacias=[(0,1), (0,2), (0,3), (1,0), (1,2), (1,3), (2,0), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2)] A3=true R3=true
+C1b merge(2,4) [valores distintos] | EXCEPCION IllegalArgumentException
+C1b merge(2^30,2^30) | EXCEPCION IllegalArgumentException: Cell value cannot be negative or not a power of two: -2147483648
+C2b moveLeft sobre 2,2 | getScore=4
+C3b Board(1,"0") | vacias=[(0,0)]
+C3b Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)]
+C3b Board(2,"2,2;0,0").moveLeft() | devuelve=true cantidad_vacias=2
+C3b Board(2, DeterministicRandom[0, 95, 0, 5]) | tablero=Score: 0 / +-----+-----+ / |     |     | / +-----+-----+ / |    4|    2| / +-----+-----+ vacias=[(0,0), (0,1)]
+C3b Board(2, DeterministicRandom[1, 50, 1, 50]) | tablero=Score: 0 / +-----+-----+ / |    2|     | / +-----+-----+ / |     |    2| / +-----+-----+ vacias=[(0,1), (1,0)]
+C2c getScore tras moveLeft(2,2) | score_antes=4 resultado=4 score_despues=4 R2=true R2pura=true
+C2c getScore en new Board() | score_antes=0 resultado=0 score_despues=0 R2=true R2pura=true
+C3c Board(2,"2,0;0,0") | vacias=[(0,1), (1,0), (1,1)] clase=HashSet modificable R3=true
+C3c Board(2,"2,0;2,2") | vacias=[(0,1)] clase=HashSet modificable R3=true
+C3c Board(4,"2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0") | vacias=[(3,3)] clase=HashSet modificable R3=true
+C3c Board(2,"0,2;4,0") | vacias=[(0,0), (1,1)] clase=HashSet modificable R3=true
+C3c orden de iteracion, tablero vacio 2x2 | [(1, 0), (1, 1), (0, 0), (0, 1)]
+C3c orden de iteracion, tablero vacio 3x3 | [(2, 1), (1, 0), (2, 2), (1, 1), (0, 0), (1, 2), (0, 1), (0, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 4x4 | [(3, 2), (2, 1), (1, 0), (3, 3), (2, 2), (1, 1), (0, 0), (2, 3), (1, 2), (0, 1), (1, 3), (0, 2), (0, 3), (3, 0), (3, 1), (2, 0)]
+C3c orden de iteracion, tablero vacio 5x5 | [(4, 3), (2, 1), (4, 4), (2, 2), (0, 0), (2, 3), (0, 1), (2, 4), (0, 2), (0, 3), (0, 4), (3, 0), (3, 1), (3, 2), (1, 0), (3, 3), (1, 1), (3, 4), (1, 2), (1, 3), (1, 4), (4, 0), (4, 1), (4, 2), (2, 0)]
+C3c orden de iteracion, tablero vacio 6x6 | [(4, 3), (2, 1), (4, 4), (2, 2), (0, 0), (4, 5), (2, 3), (0, 1), (2, 4), (0, 2), (2, 5), (0, 3), (0, 4), (0, 5), (5, 0), (5, 1), (5, 2), (3, 0), (5, 3), (3, 1), (5, 4), (3, 2), (1, 0), (5, 5), (3, 3), (1, 1), (3, 4), (1, 2), (3, 5), (1, 3), (1, 4), (1, 5), (4, 0), (4, 1), (4, 2), (2, 0)]
+

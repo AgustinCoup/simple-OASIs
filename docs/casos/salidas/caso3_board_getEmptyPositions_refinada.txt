@@ -1,0 +1,33 @@
+﻿# Modelo: nvidia/nemotron-3.5-super-vl:free
+Aserción: Postcondicion de Board.getEmptyPositions(): result != null && result instanceof java.util.Set && result es exactamente el conjunto de posiciones (r,c) tales que grid[r][c].isEmpty()
+
+== Posible aserción demasiado FUERTE (tests que la violan) ==
+No encontré ningún test ejecutable con entradas válidas que haga fallar la aserción cuando el programa se comporta correctamente.
+
+Justificación: `getEmptyPositions()` siempre crea un `HashSet<Position>` nuevo (no null e instancia de `Set`) y recorre todo el grid añadiendo exactamente las posiciones `(r,c)` donde `grid[r][c].isEmpty()` es true. `repOK()` garantiza que no hay celdas null, y `Position` implementa `equals`/`hashCode` por fila y columna, por lo que el contenido del conjunto coincide exactamente con el especificado.
+
+No sugiero una aserción más débil.
+
+== Posible aserción demasiado DÉBIL (mutantes que no mata) ==
+Mutante 1
+- Cambio: en `getEmptyPositions()`, reemplazar `new HashSet<>()` por `new LinkedHashSet<>()`.
+- Entrada testigo: `new Board(2, "0,2;4,0").getEmptyPositions()`.
+- Diferencia: el original devuelve un `HashSet`; el mutante devuelve un `LinkedHashSet` (distinta clase y orden de iteración).
+- Por qué la aserción no lo mata: en ambos `result != null`, es `instanceof Set` y contiene exactamente `{(0,0), (1,1)}`.
+
+Mutante 2
+- Cambio: en `getEmptyPositions()`, reemplazar `return empty;` por `return java.util.Collections.unmodifiableSet(empty);`.
+- Entrada testigo: `new Board(2, "0,2;4,0").getEmptyPositions()`.
+- Diferencia: el devuelto por el mutante lanza `UnsupportedOperationException` ante cualquier `add`/`remove`; el original no.
+- Por qué la aserción no lo mata: en el momento del retorno, ambos son no nulos, son `Set` y contienen exactamente las posiciones vacías.
+
+Mutante 3
+- Cambio: en `getEmptyPositions()`, recorrer los bucles en orden inverso: `for (int r = size - 1; r >= 0; r--)` y `for (int c = size - 1; c >= 0; c--)`.
+- Entrada testigo: `new Board(2, "0,2;4,0").getEmptyPositions()`.
+- Diferencia: se construye una instancia distinta de `HashSet` con inserción en orden inverso; el objeto devuelto y su disposición interna/orden de iteración cambian.
+- Por qué la aserción no lo mata: el contenido lógico es idéntico en ambos, por lo que `result` sigue siendo exactamente el conjunto de posiciones `(r,c)` con `grid[r][c].isEmpty()`.
+
+Aserción más fuerte sugerida
+Verificar además que el resultado sea una copia independiente del estado interno (por ejemplo, que su tamaño coincida con el conteo independiente de celdas vacías y que mutar el conjunto devuelto no afecte al tablero), y comprobar doble inclusión: cada posición devuelta cumple `isEmpty()` y toda posición con `isEmpty()` está en el resultado.
+
+Nota: el LLM razona sobre el código sin ejecutarlo; verificá estos resultados antes de decidir. La decisión de refinar la aserción es tuya.

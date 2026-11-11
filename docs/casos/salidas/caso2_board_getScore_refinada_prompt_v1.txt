@@ -1,0 +1,25 @@
+﻿# Modelo: nvidia/nemotron-3.5-super-vl:free
+Aserción: Postcondicion de Board.getScore(): result == this.score && result >= 0
+
+== Posible aserción demasiado FUERTE (tests que la violan) ==
+No se pueden generar tests que hagan fallar la postcondición. `getScore()` devuelve directamente el campo `score`, inicializado en 0 y modificado solo en `move()` mediante sumas de `mergedCell.getValue()`, cuyos valores son positivos (2, 4 o valores de setup >= 0). Por lo tanto, la igualdad con `this.score` es una tautología y `score >= 0` se preserva en todo estado válido (`repOK()` rechaza `score < 0`). La aserción no es demasiado fuerte: no rechaza comportamientos correctos. No corresponde sugerir una aserción más débil.
+
+== Posible aserción demasiado DÉBIL (mutantes que no mata) ==
+Mutante 1
+- Cambio: declaración del campo `private int score;` → `private int score = 10;`.
+- Entrada: `new Board()`.
+- Por qué: el original devuelve 0 y el mutante devuelve 10; en ambos casos `result == this.score` y `result >= 0`.
+
+Mutante 2
+- Cambio: en `Board.move()`, eliminar la línea `score += mergedCell.getValue();`.
+- Entrada: `new Board(2, "2,2;0,0")` seguido de `moveLeft()`.
+- Por qué: el original deja `score = 4`, el mutante lo deja en `0`; `getScore()` devuelve `this.score` en ambos y `0 >= 0`.
+
+Mutante 3
+- Cambio: en `Board.addRandomTile()`, añadir `score += value;` tras asignar la celda.
+- Entrada: `new Board()`.
+- Por qué: el original deja `score = 0`; el mutante lo deja en 4, 6 u 8 (suma de los dos tiles iniciales); `getScore()` devuelve `this.score` y es >= 0 en ambos.
+
+Aserción más fuerte: `result == this.score && result >= 0 && (board recién construido con `Board()` o `Board(int)` => result == 0)`, y en `move` verificar que el incremento de `score` sea igual a la suma de los valores de las celdas resultantes de las fusiones realizadas.
+
+Nota: el LLM razona sobre el código sin ejecutarlo; verificá estos resultados antes de decidir. La decisión de refinar la aserción es tuya.

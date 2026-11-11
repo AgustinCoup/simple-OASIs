@@ -1,0 +1,101 @@
+﻿# Modelo: nvidia/nemotron-3.5-super-vl:free
+Aserción: PostcondiciÃ³n de Cell.mergeWith(Cell other), contrato inferido por Daikon: result != null && this.value == other.value && (this.value == 1 || this.value == 2 || this.value == 4) && (result.value == 2 || result.value == 4 || result.value == 8) && this.value < result.value && result.value % this.value == 0
+
+== Posible aserción demasiado FUERTE (tests que la violan) ==
+Test 1 – fusionar dos celdas de valor 8
+
+Código:
+```java
+package ar.edu.unrc.game2048;
+
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class CellMergePostconditionTest {
+
+    @Test
+    void mergeOchoConOchoViolaPostcondicionInferida() {
+        Cell a = new Cell(8);
+        Cell b = new Cell(8);
+        Cell result = a.mergeWith(b);
+
+        assertNotNull(result);
+        assertEquals(16, result.getValue());
+
+        boolean post = result != null
+            && a.getValue() == b.getValue()
+            && (a.getValue() == 1 || a.getValue() == 2 || a.getValue() == 4)
+            && (result.getValue() == 2 || result.getValue() == 4 || result.getValue() == 8)
+            && a.getValue() < result.getValue()
+            && result.getValue() % a.getValue() == 0;
+
+        assertFalse(post, "La postcondición inferida rechaza 8 + 8 = 16");
+    }
+}
+```
+
+Traza: `a.mergeWith(b)` pasa `canMergeWith` (ambos valen 8 y no están vacíos), construye `new Cell(16)` y lo retorna. `result.getValue()` es 16; no lanza excepción.
+
+Por qué viola: `this.value` es 8, fuera de {1, 2, 4}; `result.value` es 16, fuera de {2, 4, 8}.
+
+Clasificación: aserción demasiado fuerte; el programa es correcto.
+
+---
+
+Test 2 – fusionar dos celdas de valor 16
+
+Código:
+```java
+    @Test
+    void mergeDieciseisConDieciseisViolaPostcondicionInferida() {
+        Cell a = new Cell(16);
+        Cell b = new Cell(16);
+        Cell result = a.mergeWith(b);
+
+        assertNotNull(result);
+        assertEquals(32, result.getValue());
+
+        boolean post = result != null
+            && a.getValue() == b.getValue()
+            && (a.getValue() == 1 || a.getValue() == 2 || a.getValue() == 4)
+            && (result.getValue() == 2 || result.getValue() == 4 || result.getValue() == 8)
+            && a.getValue() < result.getValue()
+            && result.getValue() % a.getValue() == 0;
+
+        assertFalse(post, "La postcondición inferida rechaza 16 + 16 = 32");
+    }
+}
+```
+
+Traza: `a.mergeWith(b)` construye `new Cell(32)` y lo retorna. `result.getValue()` es 32; no lanza excepción.
+
+Por qué viola: `this.value` es 16, fuera de {1, 2, 4}; `result.value` es 32, fuera de {2, 4, 8}.
+
+Clasificación: aserción demasiado fuerte; el programa es correcto.
+
+---
+
+Aserción más débil sugerida:
+```
+result != null && this.value == other.value && result.value == 2 * this.value && result.value > 0
+```
+
+== Posible aserción demasiado DÉBIL (mutantes que no mata) ==
+Mutante 1
+- Cambio: en `Cell.mergeWith`, reemplazar `return new Cell(this.value * 2);` por `return new Cell(this.value * 4);`.
+- Entrada: `new Cell(2).mergeWith(new Cell(2))`. Original devuelve `Cell(4)`; mutante devuelve `Cell(8)`.
+- Por qué la aserción se cumple igual: en ambos `this.value == other.value == 2` (pertenece a {1,2,4}); `result.value` es 4 u 8, ambos en {2,4,8}; `2 < result.value`; y `result.value % 2 == 0`.
+
+Mutante 2
+- Cambio: en `Cell.mergeWith`, reemplazar `return new Cell(this.value * 2);` por `return new Cell(this.value == 1 ? 4 : this.value * 2);`.
+- Entrada: `new Cell(1).mergeWith(new Cell(1))`. Original devuelve `Cell(2)`; mutante devuelve `Cell(4)`.
+- Por qué la aserción se cumple igual: en ambos `this.value == other.value == 1`; `result.value` es 2 u 4, ambos en {2,4,8}; `1 < result.value`; y `result.value % 1 == 0`.
+
+Mutante 3
+- Cambio: en `Cell.mergeWith`, reemplazar `return new Cell(this.value * 2);` por `return new Cell(this.value == 1 ? 8 : this.value * 2);`.
+- Entrada: `new Cell(1).mergeWith(new Cell(1))`. Original devuelve `Cell(2)`; mutante devuelve `Cell(8)`.
+- Por qué la aserción se cumple igual: en ambos `this.value == other.value == 1`; `result.value` es 2 u 8, ambos en {2,4,8}; `1 < result.value`; y `result.value % 1 == 0`.
+
+Aserción más fuerte sugerida: `result != null && this.value == other.value && this.value > 0 && result.value == 2 * this.value` (equivalente a `result.value == this.value + other.value`), eliminando la lista blanca de valores y exigiendo el duplicado exacto.
+
+Nota: el LLM razona sobre el código sin ejecutarlo; verificá estos resultados antes de decidir. La decisión de refinar la aserción es tuya.

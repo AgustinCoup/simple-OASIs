@@ -1,0 +1,84 @@
+﻿# Modelo: nvidia/nemotron-3.5-super-vl:free
+Aserción: Postcondicion de Board.getScore(), contrato inferido por Daikon: result == this.score && result >= 0 && result < Board.WINNING_VALUE
+
+== Posible aserción demasiado FUERTE (tests que la violan) ==
+**Test 1**
+
+Constructor/método usados: `Board(int size, String setup)` y `moveLeft()`.
+
+```java
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import ar.edu.unrc.game2048.Board;
+
+public class BoardScoreTest1 {
+    @Test
+    public void scoreReachesWinningValue() {
+        Board board = new Board(4, "0,0,0,0;0,0,0,0;0,0,0,0;1024,1024,0,0");
+        assertTrue(board.moveLeft());
+        int result = board.getScore();
+        boolean contrato = result == board.getScore() && result >= 0 && result < Board.WINNING_VALUE;
+        assertTrue(contrato);
+    }
+}
+```
+
+Resultado: `moveLeft()` fusiona los dos `1024` en un `2048`; `score` pasa de `0` a `2048`; `getScore()` retorna `2048`.
+
+Por qué viola la aserción: `2048 < Board.WINNING_VALUE` (`2048 < 2048`) es falso, por lo tanto la conjunción es falsa.
+
+Clasificación: la aserción es demasiado fuerte; no es un bug del programa.
+
+---
+
+**Test 2**
+
+Constructor/método usados: `Board(int size, String setup)` y `moveLeft()`.
+
+```java
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import ar.edu.unrc.game2048.Board;
+
+public class BoardScoreTest2 {
+    @Test
+    public void scoreExceedsWinningValue() {
+        Board board = new Board(4, "0,0,0,0;0,0,0,0;0,0,0,0;1024,1024,1024,1024");
+        assertTrue(board.moveLeft());
+        int result = board.getScore();
+        boolean contrato = result == board.getScore() && result >= 0 && result < Board.WINNING_VALUE;
+        assertTrue(contrato);
+    }
+}
+```
+
+Resultado: `moveLeft()` realiza dos fusiones de `1024`; `score` llega a `4096`; `getScore()` retorna `4096`.
+
+Por qué viola la aserción: `4096 < Board.WINNING_VALUE` es falso.
+
+Clasificación: la aserción es demasiado fuerte; no es un bug del programa.
+
+---
+
+**Aserción más débil sugerida**
+
+`result == this.score && result >= 0` (eliminar la cota superior `result < Board.WINNING_VALUE`).
+
+== Posible aserción demasiado DÉBIL (mutantes que no mata) ==
+Mutante 1  
+- Cambio: en `Board.getScore()`, reemplazar `return score;` por `return this.score = 0;`.  
+- Entrada: `Board b = new Board(2, "2,2;0,0"); b.moveLeft();` (tras el movimiento, `score == 4`); luego `b.getScore()`.  
+- Original devuelve 4; mutante devuelve 0 y deja `score` en 0.  
+- La aserción se cumple en ambos: original `4 == 4 ∧ 4 ≥ 0 ∧ 4 < 2048`; mutante `0 == 0 ∧ 0 ≥ 0 ∧ 0 < 2048` (el postcondicion ve `this.score` ya modificado a 0). Los resultados difieren, pero el oráculo no lo detecta.
+
+Mutante 2  
+- Cambio: en `Board.getScore()`, reemplazar `return score;` por `this.score = 0; return this.score;`.  
+- Misma entrada que arriba.  
+- Original devuelve 4; mutante devuelve 0 y deja `score` en 0.  
+- La aserción se cumple en ambos por la misma razón: en el mutante `result` y `this.score` son 0 en estado post.
+
+Aserción más fuerte sugerida:  
+`result == \old(this.score) && result >= 0 && result < Board.WINNING_VALUE`  
+(además de exigir pureza del getter: `\old(this.score) == this.score`).
+
+Nota: el LLM razona sobre el código sin ejecutarlo; verificá estos resultados antes de decidir. La decisión de refinar la aserción es tuya.

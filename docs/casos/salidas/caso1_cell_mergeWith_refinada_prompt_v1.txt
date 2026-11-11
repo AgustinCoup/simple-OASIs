@@ -1,0 +1,61 @@
+﻿# Modelo: nvidia/nemotron-3.5-super-vl:free
+Aserción: Postcondicion de Cell.mergeWith(Cell other): result != null && this.value == other.value && this.value > 0 && result.value == 2 * this.value
+
+== Posible aserción demasiado FUERTE (tests que la violan) ==
+```java
+package ar.edu.unrc.game2048;
+
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class CellMergePostconditionTest {
+
+    @Test
+    void mergeWithMaxPowerOfTwoViolatesPostconditionBecauseOfIntOverflow() {
+        Cell a = new Cell(1073741824); // 2^30, válida
+        Cell b = new Cell(1073741824); // 2^30, válida
+
+        assertTrue(a.canMergeWith(b));
+
+        try {
+            Cell result = a.mergeWith(b);
+            assertTrue(result != null
+                    && a.getValue() == b.getValue()
+                    && a.getValue() > 0
+                    && result.getValue() == 2 * a.getValue(),
+                    "La postcondición de mergeWith no se cumple");
+        } catch (IllegalArgumentException e) {
+            fail("mergeWith lanzó excepción para entradas válidas; "
+                 + "la postcondición asume que siempre hay resultado (demasiado fuerte).");
+        }
+    }
+}
+```
+
+Resultado / traza breve:
+1. `a` y `b` son celdas válidas con valor `1073741824` (2^30).
+2. `a.canMergeWith(b)` devuelve `true`.
+3. `a.mergeWith(b)` evalúa `new Cell(a.value * 2)`. En `int`, `1073741824 * 2` desborda a `-2147483648`.
+4. El constructor lanza `IllegalArgumentException` porque el valor es negativo.
+5. No se devuelve ningún `result`.
+
+Por qué viola la aserción:
+La postcondición exige `result != null` y `result.value == 2 * this.value`, pero para estas entradas válidas el programa no produce resultado: lanza excepción por desbordamiento de `int` al duplicar el valor.
+
+¿Bug del programa o aserción demasiado fuerte?
+Es una aserción demasiado fuerte. El programa respeta su invariante de representación (no crea una celda con valor inválido), pero la postcondición garantiza un resultado sin contemplar el desbordamiento de `32 bits` ni la propagación de la excepción del constructor.
+
+Aserción más débil sugerida:
+`result != null ==> (this.value == other.value && this.value > 0 && result.value == 2 * this.value)`  
+o condicionada a ausencia de desbordamiento:  
+`this.value <= Integer.MAX_VALUE / 2 ==> (result != null && this.value == other.value && this.value > 0 && result.value == 2 * this.value)`.
+
+== Posible aserción demasiado DÉBIL (mutantes que no mata) ==
+No encontré mutantes no matados.
+
+La postcondición fija unívocamente el valor del resultado (`result.value == 2 * this.value`) y exige `this.value == other.value > 0`. Como `value` es `final` y la clase es inmutable, ningún cambio pequeño en `mergeWith` puede devolver un objeto con otro valor sin violar esa igualdad, ni alterar `this` o `other` sin falsificar `this.value == other.value`. Los únicos cambios que escaparían requerirían tocar el constructor o campos `final`, lo cual ya no es un mutante localizado y no produce dos ejecuciones normales con resultados distintos donde la aserción se cumpla en ambas.
+
+Aserción más fuerte sugerida:
+`result != null && result.repOK() && result != this && result != other && this.value == other.value && this.value > 0 && result.value == 2 * this.value`
+
+Nota: el LLM razona sobre el código sin ejecutarlo; verificá estos resultados antes de decidir. La decisión de refinar la aserción es tuya.

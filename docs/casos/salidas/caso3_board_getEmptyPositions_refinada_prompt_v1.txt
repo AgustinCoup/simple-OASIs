@@ -1,0 +1,38 @@
+﻿# Modelo: nvidia/nemotron-3.5-super-vl:free
+Aserción: Postcondicion de Board.getEmptyPositions(): result != null && result.getClass() == java.util.HashSet.class && result es exactamente el conjunto de posiciones (r,c) tales que grid[r][c].isEmpty()
+
+== Posible aserción demasiado FUERTE (tests que la violan) ==
+No se encontraron tests ejecutables que hagan fallar la aserción con el programa actual.
+
+`getEmptyPositions()` siempre instancia `new HashSet<>()` y recorre todo el grid agregando exactamente las posiciones `(r,c)` donde `grid[r][c].isEmpty()` es verdadero, por lo que se cumplen simultáneamente: resultado no nulo, clase exacta `HashSet`, y contenido exacto.
+
+La aserción es demasiado fuerte/fragil porque acopla la postcondición a la implementación concreta (`HashSet.class`) en lugar de al tipo abstracto y al contenido.
+
+Aserción más débil sugerida:
+
+```
+result != null && result instanceof java.util.Set &&
+result contiene exactamente las posiciones (r,c) tales que grid[r][c].isEmpty()
+```
+
+Equivalentemente, verificar tamaño y membresía sin exigir la clase concreta.
+
+== Posible aserción demasiado DÉBIL (mutantes que no mata) ==
+Mutante 1
+- Cambio: `addRandomTile()`, línea `int value = ... < 90 ? 2 : 4;` → `int value = ... < 90 ? 4 : 2;`
+- Entrada: `new Board(1, "0")` con secuencia de random que seleccione (0,0) y genere un número < 90.
+- Por qué la aserción se cumple en ambos: el original coloca un 2 en (0,0), el mutante un 4; en ambos casos `getEmptyPositions()` devuelve `{}` y la postcondición solo comprueba que el conjunto coincida con las celdas vacías del grid actual (ninguna), sin inspeccionar el valor del tile insertado.
+
+Mutante 2
+- Cambio: `move()`, línea `boolean moved = !this.equals(previous);` → `boolean moved = this.equals(previous);`
+- Entrada: `new Board(2, "2,2;0,0")` seguido de `moveLeft()`.
+- Por qué la aserción se cumple en ambos: el original fusiona, detecta cambio, añade un tile y queda con 2 celdas vacías; el mutante fusiona pero no detecta cambio, no añade tile y queda con 3 celdas vacías. En cada caso `getEmptyPositions()` devuelve exactamente las vacías del grid resultante, por lo que la postcondición se cumple en ambos aunque el mutante omita el tile obligatorio tras un move exitoso.
+
+Mutante 3
+- Cambio: `addRandomTile()`, línea `Position pos = empty.stream().skip(randomIndex).findFirst().get();` → `Position pos = empty.iterator().next();`
+- Entrada: `new Board(2, "2,0;0,0")` (el constructor invoca `addRandomTile()` dos veces) con una secuencia donde la elección aleatoria difiere de la primera del iterador.
+- Por qué la aserción se cumple en ambos: el original coloca tiles en posiciones aleatorias, el mutante en la primera posición del iterador; los conjuntos finales de vacías difieren, pero cada uno es exactamente el conjunto de celdas vacías de su propio grid, así que la aserción pasa en ambos sin detectar que la selección dejó de ser aleatoria.
+
+Aserción más fuerte sugerida: para `getEmptyPositions`, tomar una copia del grid antes y después para garantizar que no se modifica y comparar el resultado contra esa foto; para `move`/`addRandomTile`, verificar que tras un move exitoso el número de celdas vacías disminuya exactamente en 1 y que el nuevo tile tenga valor 2 o 4 en una posición que antes estaba vacía.
+
+Nota: el LLM razona sobre el código sin ejecutarlo; verificá estos resultados antes de decidir. La decisión de refinar la aserción es tuya.

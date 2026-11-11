@@ -1,0 +1,64 @@
+﻿# Modelo: nvidia/nemotron-3.5-super-vl:free
+Aserción: PostcondiciÃ³n de Board.getScore(), contrato inferido por Daikon: result == this.score && result >= 0 && result < Board.WINNING_VALUE
+
+== Posible aserción demasiado FUERTE (tests que la violan) ==
+**Test 1 (JUnit 4)**
+
+```java
+package ar.edu.unrc.game2048;
+
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+
+public class BoardScoreDaikonTest {
+
+    @Test
+    public void getScore_puedeSerIgualAMayorQueWinningValue() {
+        Board board = new Board(2, "1024,1024;0,0");
+        board.moveLeft();
+
+        int result = board.getScore();
+
+        assertTrue(result == board.getScore());
+        assertTrue(result >= 0);
+        assertTrue(result < Board.WINNING_VALUE); // falla
+    }
+}
+```
+
+**Resultado del programa (traza breve)**  
+`new Board(2, "1024,1024;0,0")` crea un tablero 2×2 con fila `[1024, 1024]` y `[0, 0]`, score = 0.  
+`moveLeft()` fusiona los dos 1024 en una celda 2048 y suma 2048 al score; luego añade un tile aleatorio en una celda vacía.  
+`getScore()` devuelve **2048**. La última aserción evalúa `2048 < 2048`, que es falso, por lo que el test falla.
+
+**Por qué viola la aserción**  
+La cláusula `result < Board.WINNING_VALUE` prohíbe un score igual o superior a 2048, pero el score acumulado por fusiones legítimas puede alcanzar o superar ese valor sin que el estado del tablero sea inválido.
+
+**¿Bug del programa o aserción demasiado fuerte?**  
+Aserción demasiado fuerte; no es un bug del programa.
+
+**Aserción más débil sugerida**  
+`result == this.score && result >= 0`
+
+== Posible aserción demasiado DÉBIL (mutantes que no mata) ==
+Mutante 1
+- Cambio: `Board.move()`, línea `score += mergedCell.getValue();` → `score += nonEmpty.get(i).getValue();`
+- Entrada: `new Board(4, "2,0,0,0;2,0,0,0;0,0,0,0;0,0,0,0")` seguido de `moveUp()`.
+- Diferencia: original `getScore() == 4`; mutante `getScore() == 2`.
+- Por qué no muere: ambos resultados son iguales a `this.score`, no negativos y menores que 2048.
+
+Mutante 2
+- Cambio: `Board.move()`, línea `score += mergedCell.getValue();` → `score += 0;`
+- Entrada: misma que el Mutante 1.
+- Diferencia: original `getScore() == 4`; mutante `getScore() == 0`.
+- Por qué no muere: 0 y 4 cumplen `result == this.score`, `result >= 0` y `result < 2048`.
+
+Mutante 3
+- Cambio: `Board.addRandomTile()`, tras `grid[pos.row][pos.col] = new Cell(value);` insertar `score += value;`
+- Entrada: `new Board()` (constructor por defecto).
+- Diferencia: original `getScore() == 0`; mutante `getScore() >= 4` (suma de los dos tiles iniciales).
+- Por qué no muere: ambos valores están en `[0, 2048)` y coinciden con `this.score`.
+
+Sugerencia: eliminar la cota superior errónea; usar `result == this.score && result >= 0`. Si hay acceso al estado previo, añadir `result >= scoreAntesDelMovimiento`.
+
+Nota: el LLM razona sobre el código sin ejecutarlo; verificá estos resultados antes de decidir. La decisión de refinar la aserción es tuya.

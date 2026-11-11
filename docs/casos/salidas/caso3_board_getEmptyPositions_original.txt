@@ -1,0 +1,38 @@
+﻿# Modelo: nvidia/nemotron-3.5-super-vl:free
+Aserción: Postcondicion de Board.getEmptyPositions(), contrato inferido por Daikon: result != null && result.getClass() == java.util.HashSet.class
+
+== Posible aserción demasiado FUERTE (tests que la violan) ==
+No se encontraron tests ejecutables que violen la aserción. `Board.getEmptyPositions()` siempre instancia y retorna `new HashSet<>()`, por lo que para todo estado válido alcanzable mediante los constructores públicos se cumple `result != null && result.getClass() == java.util.HashSet.class`. No hay entrada válida que haga retornar otro tipo concreto o `null`.
+
+== Posible aserción demasiado DÉBIL (mutantes que no mata) ==
+Mutante 1  
+Cambio en `Board.getEmptyPositions()`:  
+`if (grid[r][c].isEmpty())` → `if (!grid[r][c].isEmpty())`  
+
+Entrada testigo: `new Board(2, "2,0;0,0")`.  
+Original devuelve `{(0,1),(1,0),(1,1)}`; mutante devuelve `{(0,0)}`.  
+La aserción se cumple igual porque ambos devuelven un `java.util.HashSet` no null.
+
+Mutante 2  
+Cambio en `Board.getEmptyPositions()`:  
+`empty.add(new Position(r, c));` → `empty.add(new Position(c, r));`  
+
+Entrada testigo: `new Board(2, "2,0;2,2")`.  
+Original devuelve `{(0,1)}`; mutante devuelve `{(1,0)}`.  
+La aserción se cumple igual porque ambos devuelven un `java.util.HashSet` no null.
+
+Mutante 3  
+Cambio en `Board.getEmptyPositions()`:  
+`for (int r = 0; r < size; r++)` → `for (int r = 0; r < size - 1; r++)`  
+y  
+`for (int c = 0; c < size; c++)` → `for (int c = 0; c < size - 1; c++)`  
+
+Entrada testigo: `new Board(4, "2,2,2,2;2,2,2,2;2,2,2,2;2,2,2,0")`.  
+Original devuelve `{(3,3)}`; mutante devuelve `{}`.  
+La aserción se cumple igual porque ambos devuelven un `java.util.HashSet` no null.
+
+Aserción más fuerte sugerida:  
+`result != null && result.getClass() == java.util.HashSet.class && result.equals(expectedEmptyPositions)`  
+donde `expectedEmptyPositions` es el conjunto esperado calculado independientemente (o equivalentemente verificar tamaño y contenidos exactos).
+
+Nota: el LLM razona sobre el código sin ejecutarlo; verificá estos resultados antes de decidir. La decisión de refinar la aserción es tuya.

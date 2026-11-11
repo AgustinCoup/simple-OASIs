@@ -1,0 +1,19 @@
+--- a/src/main/java/ar/edu/unrc/game2048/Cell.java
++++ b/src/main/java/ar/edu/unrc/game2048/Cell.java
+@@ -100,6 +100,7 @@
+      * @param other the cell to merge with (must have the same value)
+      * @return a new Cell with the merged value
+      * @throws IllegalArgumentException if the cells cannot be merged
++     * @throws ArithmeticException if the merged value does not fit in an int (this.value * 2 overflows)
+      */
+     public Cell mergeWith(Cell other) {
+         if (!canMergeWith(other)) {
+@@ -107,7 +108,7 @@
+                 "Cannot merge cells: " + this + " and " + other
+             );
+         }
+-        return new Cell(this.value * 2);
++        return new Cell(Math.multiplyExact(this.value, 2));
+     }
+ 
+     /**

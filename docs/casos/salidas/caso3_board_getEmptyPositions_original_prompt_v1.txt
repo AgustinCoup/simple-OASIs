@@ -1,0 +1,29 @@
+﻿# Modelo: nvidia/nemotron-3.5-super-vl:free
+Aserción: PostcondiciÃ³n de Board.getEmptyPositions(), contrato inferido por Daikon: result != null && result.getClass() == java.util.HashSet.class
+
+== Posible aserción demasiado FUERTE (tests que la violan) ==
+No se encontraron tests ejecutables con el código actual que hagan fallar la aserción. `Board.getEmptyPositions()` siempre ejecuta `Set<Position> empty = new HashSet<>();` y retorna esa misma instancia; nunca devuelve `null` ni una clase distinta de `java.util.HashSet`. Por lo tanto, para cualquier entrada válida (tablero por defecto, tablero construido con `setup`, o tablero tras movimientos), `result.getClass()` es `java.util.HashSet`.
+
+La aserción es correcta para la implementación actual, pero es demasiado fuerte como contrato del tipo de retorno declarado (`Set<Position>`), pues este tipo estático no garantiza la clase concreta.
+
+Aserción más débil sugerida: `result != null` (o equivalentemente `result instanceof java.util.Set`).
+
+== Posible aserción demasiado DÉBIL (mutantes que no mata) ==
+Mutante 1  
+- Cambio: en `getEmptyPositions()`, `if (grid[r][c].isEmpty())` → `if (!grid[r][c].isEmpty())`  
+- Entrada: `new Board(1, "5")`. Original devuelve `{}`; mutante devuelve `{(0,0)}`.  
+- Razón: ambos retornan una instancia no nula de `java.util.HashSet`.
+
+Mutante 2  
+- Cambio: en `getEmptyPositions()`, `empty.add(new Position(r, c))` → `empty.add(new Position(c, r))`  
+- Entrada: `new Board(2, "0,2;0,0")`. Original contiene `(1,0)`; mutante contiene `(0,1)` en su lugar.  
+- Razón: ambos retornan una instancia no nula de `java.util.HashSet`.
+
+Mutante 3  
+- Cambio: en `getEmptyPositions()`, los bucles usan `size - 1` en lugar de `size`, omitiendo la última fila y columna.  
+- Entrada: `new Board(2, "0,0;0,0")`. Original devuelve 4 posiciones; mutante devuelve solo `{(0,0)}`.  
+- Razón: ambos retornan una instancia no nula de `java.util.HashSet`.
+
+Aserción más fuerte sugerida: verificar el contenido exacto, por ejemplo que `result` contenga exactamente las posiciones `(r,c)` tales que `grid[r][c].isEmpty()` y ninguna otra (doble inclusión o comparación contra un conjunto esperado calculado independientemente), además del tamaño correcto.
+
+Nota: el LLM razona sobre el código sin ejecutarlo; verificá estos resultados antes de decidir. La decisión de refinar la aserción es tuya.
